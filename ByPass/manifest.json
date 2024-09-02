@@ -1,0 +1,28 @@
+
+{
+  "manifest_version": 2,
+  "name": "Bypass bot telegram genlogin",
+  "version": "1.0",
+  "description": "Extension này để có thể chơi các game mobile trên nền tảng web của genlogin. Nếu có trục trặc gì contact @hsxonz để biết thêm chi tiết.",
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_icon": {
+      "16": "logo.png",
+      "48": "logo.png",
+      "128": "logo.png"
+    }
+  },
+  "icons": {
+    "16": "logo.png",
+    "48": "logo.png",
+    "128": "logo.png"
+  }
+}
