@@ -9,6 +9,7 @@ async function getHeaders(user) {
       'authorization': `Bearer ${user.access}`,
       'accept': 'application/json, text/plain, */*',
       'accept-language': 'en-US,en;q=0.9',
+      // 'content-length': '0',
       'origin': 'https://telegram.blum.codes',
       'priority': 'u=1, i',
       'sec-ch-ua': '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
@@ -128,23 +129,49 @@ async function dailyReward(user) {
 }
 
 async function playGame(user) {
-   const headers = await getHeaders(user)
-
+  const headers = {
+    'authorization': `Bearer ${user.access}`,
+    'accept': 'application/json, text/plain, */*',
+    'accept-language': 'en-US,en;q=0.9',
+    'content-length': '0',
+    'origin': 'https://telegram.blum.codes',
+    'priority': 'u=1, i',
+    'sec-ch-ua': '"Chromium";v="125", "Not.A/Brand";v="24"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-site',
+    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
+  };
   const res = await axios.post('https://game-domain.blum.codes/api/v1/game/play', {}, {headers: headers});
   return res.data.gameId ?? ''
 }
 
+
 async function claimGame(user, gameId) {
   const url = 'https://game-domain.blum.codes/api/v1/game/claim';
-  const headers = await getHeaders(user)
+  const headers = {
+    'authorization': `Bearer ${user.access}`,
+    'accept': 'application/json, text/plain, */*',
+    'accept-language': 'en-US,en;q=0.9',
+    'content-type': 'application/json',
+    'origin': 'https://telegram.blum.codes',
+    'priority': 'u=1, i',
+    'sec-ch-ua': '"Chromium";v="125", "Not.A/Brand";v="24"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-site',
+    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
+  };
 
   const randCoin = Math.floor(Math.random() * 180) + 31;
   await axios.post(url, {
     gameId: gameId,
     points: randCoin
-
   }, {headers: headers});
-
 }
 
 async function claimBalance(user) {
@@ -255,6 +282,20 @@ async function joinTribe(user, tribeId) {
     }
     console.log("Lấy token mới : ", user.access === users[i].access)
     const balance = await getBalance(user);
+    await checkBalanceFriend(user);
+    await claimBalanceFriend(user);
+    await dailyReward(user);
+    if (balance && typeof balance.farming === 'undefined') {
+      await startFarming(user);
+      const claimRes = await claimBalance(user);
+      if (claimRes) {
+        const randTime1 = Math.floor(Math.random() * 3) + 1;
+        await new Promise(resolve => setTimeout(resolve, (2 + randTime1) * 1000));
+        const tribeId = 'b372af40-6e97-4782-b70d-4fc7ea435022';
+        await joinTribe(user, tribeId);
+      }
+    }
+
     const dataTask = await getTasks(user);
     for (const task of dataTask){
       for ( const t of task.tasks){
@@ -265,18 +306,6 @@ async function joinTribe(user, tribeId) {
     for (const task of dataTask){
       for ( const t of task.tasks){
         await claimTask(user, t.id);
-      }
-    }
-
-    await checkBalanceFriend(user);
-    await claimBalanceFriend(user);
-    await dailyReward(user);
-    if (balance && typeof balance.farming === 'undefined') {
-      const claimRes = await claimBalance(user);
-      if (claimRes) {
-        const randTime1 = Math.floor(Math.random() * 3) + 1;
-        await new Promise(resolve => setTimeout(resolve, (2 + randTime1) * 1000));
-        await startFarming(user);
       }
     }
 
@@ -302,8 +331,6 @@ async function joinTribe(user, tribeId) {
     } else {
       console.log(`Hết lượt chơi game .... `);
     }
-
-    await joinTribe(user);
   }
 })();
 
