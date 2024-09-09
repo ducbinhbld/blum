@@ -237,7 +237,7 @@ async function startTask(user, taskId) {
     const response = await axios.post(`https://game-domain.blum.codes/api/v1/tasks/${taskId}/start`, {}, {headers: headers});
     return response.data;
   } catch (error) {
-    //  console.log(`Không thể bắt đầu nhiệm vụ ${taskId}: ${error.message}`);
+     console.log(`Không thể bắt đầu nhiệm vụ ${taskId}: ${error.message}`);
     return null;
   }
 }
@@ -248,6 +248,7 @@ async function claimTask(user, taskId) {
     const response = await axios.post(`https://game-domain.blum.codes/api/v1/tasks/${taskId}/claim`, {}, {headers: headers});
     return response.data;
   } catch (error) {
+    console.log(`Không thể bắt đầu claim ${taskId}: ${error.message}`);
     return null;
   }
 }
@@ -409,7 +410,7 @@ async function getUserInfos(token) {
 (async () => {
   console.log(`============== BLUM ==============`);
   console.log(`============== ${DateTime.now().toString()} ==============`);
-  await processToken()
+  // await processToken()
   await new Promise(r => setTimeout(r, 2000));
   for (let i = 0; i < users.length; i++) {
     console.log(`Bắt đầu tài khoản ${users[i].user ?? ''}`)
@@ -431,13 +432,14 @@ async function getUserInfos(token) {
     }
 
     const dataTask = await getTasks(user);
-    for (const task of dataTask){
+    console.log("dataTask", dataTask[0].subSections)
+    for (const task of dataTask[0].subSections){
       for ( const t of task.tasks){
         await startTask(user, t.id);        
       }
     }
 
-    for (const task of dataTask){
+    for (const task of dataTask[0].subSections){
       for ( const t of task.tasks){
         await claimTask(user, t.id);
       }
